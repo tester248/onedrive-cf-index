@@ -7,11 +7,23 @@
  * - If you are using a E5 Subscription OneDrive for Business account, the direct links of your files are not the same here.
  *   In which case you would need to change directLinkRegex.
  */
+/**
+ * Reads a required environment variable and throws a clear error if it is missing.
+ * Returns a guaranteed `string` so TypeScript treats the value as present.
+ */
+const requireEnv = (name) => {
+  const value = process.env[name]
+  if (!value) {
+    throw new Error(`Missing required environment variable: ${name}`)
+  }
+  return value
+}
+
 module.exports = {
   // The clientId and clientSecret are used to authenticate the user with Microsoft Graph API using OAuth.
   // Provide them via the OAUTH_CLIENT_ID and OAUTH_CLIENT_SECRET environment variables.
-  clientId: process.env.OAUTH_CLIENT_ID,
-  obfuscatedClientSecret: process.env.OAUTH_CLIENT_SECRET,
+  clientId: requireEnv('OAUTH_CLIENT_ID'),
+  obfuscatedClientSecret: requireEnv('OAUTH_CLIENT_SECRET'),
 
   // The redirectUri is the URL that the user will be redirected to after they have authenticated with Microsoft Graph API.
   // Likewise, you would not need to change redirectUri if you are using your personal Microsoft account with OneDrive International.

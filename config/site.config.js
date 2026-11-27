@@ -2,11 +2,23 @@
  * This file contains the configuration used for customising the website, such as the folder to share,
  * the title, used Google fonts, site icons, contact info, etc.
  */
+/**
+ * Reads a required environment variable and throws a clear error if it is missing.
+ * Returns a guaranteed `string` so TypeScript treats the value as present.
+ */
+const requireEnv = (name) => {
+  const value = process.env[name]
+  if (!value) {
+    throw new Error(`Missing required environment variable: ${name}`)
+  }
+  return value
+}
+
 module.exports = {
   // This is what we use to identify who you are when you are initialising the website for the first time.
   // Make sure this is exactly the same as the email address you use to sign into your Microsoft account.
   // Must be provided via the USER_PRINCIPLE_NAME environment variable.
-  userPrincipalName: process.env.USER_PRINCIPLE_NAME,
+  userPrincipalName: requireEnv('USER_PRINCIPLE_NAME'),
 
   // [OPTIONAL] This is the website icon to the left of the title inside the navigation bar. It should be placed under the
   // /public directory of your GitHub project (not your OneDrive folder!), and referenced here by its relative path to /public.
@@ -17,7 +29,7 @@ module.exports = {
 
   // The folder that you are to share publicly with onedrive-cf-index-ng. Must be provided via the
   // BASE_DIRECTORY environment variable (e.g. "Documents/TSQDrive"). Use '/' for the whole drive.
-  baseDirectory: process.env.BASE_DIRECTORY,
+  baseDirectory: requireEnv('BASE_DIRECTORY'),
 
   // [OPTIONAL] This represents the maximum number of items that one directory lists, pagination supported.
   // Do note that this is limited up to 200 items by the upstream OneDrive API.
