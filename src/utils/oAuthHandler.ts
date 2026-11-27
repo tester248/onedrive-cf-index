@@ -8,6 +8,14 @@ import apiConfig from '../../config/api.config'
 // Leave this for compatibility with the old version
 const AES_SECRET_KEY = 'onedrive-vercel-index'
 
+// Throws if a config value expected from the environment is missing.
+function requireEnvValue(value: string | undefined, name: string): string {
+  if (!value) {
+    throw new Error(`Missing required environment variable: ${name}`)
+  }
+  return value
+}
+
 export function revealObfuscatedToken(obfuscated: string): string {
   // Decrypt SHA256 obfuscated token
   const decrypted = CryptoJS.AES.decrypt(obfuscated, AES_SECRET_KEY)
@@ -21,7 +29,7 @@ export function generateAuthorisationUrl(): string {
 
   // Construct URL parameters for OAuth2
   const params = new URLSearchParams()
-  params.append('client_id', clientId)
+  params.append('client_id', requireEnvValue(clientId, 'OAUTH_CLIENT_ID'))
   params.append('redirect_uri', redirectUri)
   params.append('response_type', 'code')
   params.append('scope', scope)
@@ -53,11 +61,11 @@ export async function requestTokenWithAuthCode(
   | { error: string; errorDescription: string; errorUri: string }
 > {
   const { clientId, redirectUri, authApi } = apiConfig
-  const clientSecret = revealObfuscatedToken(apiConfig.obfuscatedClientSecret)
+  const clientSecret = revealObfuscatedToken(requireEnvValue(apiConfig.obfuscatedClientSecret, 'OAUTH_CLIENT_SECRET'))
 
   // Construct URL parameters for OAuth2
   const params = new URLSearchParams()
-  params.append('client_id', clientId)
+  params.append('client_id', requireEnvValue(clientId, 'OAUTH_CLIENT_ID'))
   params.append('redirect_uri', redirectUri)
   params.append('client_secret', clientSecret)
   params.append('code', code)

@@ -12,7 +12,12 @@ import { NextRequest, NextResponse } from 'next/server'
 export const runtime = 'edge'
 
 const basePath = pathPosix.resolve('/', siteConfig.baseDirectory)
-const clientSecret = revealObfuscatedToken(apiConfig.obfuscatedClientSecret)
+
+const clientSecretRaw = apiConfig.obfuscatedClientSecret
+if (!clientSecretRaw) {
+  throw new Error('Missing required environment variable: OAUTH_CLIENT_SECRET')
+}
+const clientSecret = revealObfuscatedToken(clientSecretRaw)
 
 /**
  * Encode the path of the file relative to the base directory
@@ -51,7 +56,11 @@ export async function getAccessToken(): Promise<string> {
 
   // Fetch new access token with in storage refresh token
   const body = new URLSearchParams()
-  body.append('client_id', apiConfig.clientId)
+  const clientId = apiConfig.clientId
+  if (!clientId) {
+    throw new Error('Missing required environment variable: OAUTH_CLIENT_ID')
+  }
+  body.append('client_id', clientId)
   body.append('redirect_uri', apiConfig.redirectUri)
   body.append('client_secret', clientSecret)
   body.append('refresh_token', refreshToken)
